@@ -43,6 +43,9 @@ module LogStash module Inputs class Redis < LogStash::Inputs::Threadable
   # Initial connection timeout in seconds.
   config :timeout, :validate => :number, :default => 5
 
+  # Username to authenticate with. There is no authentication by default.
+  config :username, :validate => :string
+
   # Password to authenticate with. There is no authentication by default.
   config :password, :validate => :password
 
@@ -63,7 +66,7 @@ module LogStash module Inputs class Redis < LogStash::Inputs::Threadable
   public
 
   def register
-    @redis_url = @path.nil? ? "redis://#{@password}@#{@host}:#{@port}/#{@db}" : "#{@password}@#{@path}/#{@db}"
+    @redis_url = @path.nil? ? "redis://#{@username}:#{@password}@#{@host}:#{@port}/#{@db}" : "#{@username}:#{@password}@#{@path}/#{@db}"
 
     # just switch on data_type once
     if @data_type == 'list' || @data_type == 'dummy'
@@ -110,6 +113,7 @@ module LogStash module Inputs class Redis < LogStash::Inputs::Threadable
     params = {
         :timeout => @timeout,
         :db => @db,
+        :username => @username,
         :password => @password.nil? ? nil : @password.value,
         :ssl => @ssl
     }
